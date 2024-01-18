@@ -4,7 +4,6 @@
 *.pyc
 __pycache__
 db.sqlite3
-ironyinsider/media/uploads/*
 exports
 # Backup files # 
 *.bak 
@@ -105,8 +104,8 @@ venv/
 ENV/ 
 env.bak/ 
 venv.bak/
-ironyinsider/static/admin
-ironyinsider/static/rest_framework
+basalt_simple_wallet/static/admin
+basalt_simple_wallet/static/rest_framework
 # mkdocs documentation 
 /site 
 
@@ -137,3 +136,7 @@ GitHub.sublime-settings
 !.vscode/launch.json 
 !.vscode/extensions.json 
 .history
+.pg_data
+.pg_backups
+.exports
+pg_data
