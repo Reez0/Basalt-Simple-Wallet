@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from .managers import CustomUserManager
 from cryptography.fernet import Fernet
 import os
+import base64
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -36,9 +37,10 @@ class Account(models.Model):
     def save_private_key(self, private_key):
         cipher_suite = Fernet(os.getenv('ENCRYPTION_KEY'))
         encrypted_key = cipher_suite.encrypt(private_key.encode())
-        self.private = encrypted_key
+        self.private = base64.b64encode(encrypted_key).decode()
 
     def get_private_key(self):
         cipher_suite = Fernet(os.getenv('ENCRYPTION_KEY'))
-        private_key = cipher_suite.decrypt(self.private).decode()
+        encrypted_key = base64.b64decode(self.private)
+        private_key = cipher_suite.decrypt(encrypted_key).decode()
         return private_key

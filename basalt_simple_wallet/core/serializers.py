@@ -34,3 +34,21 @@ class LoginSerializer(serializers.Serializer):
 
         data['user'] = user
         return data
+
+
+class MakePaymentSerializer(serializers.Serializer):
+    amount = serializers.IntegerField()
+    transaction_note = serializers.CharField(max_length=100, required=True)
+    address = serializers.CharField(max_length=500, required=True)
+
+    def validate(self, data):
+        amount = data.get('amount')
+        transaction_note = data.get('transaction_note')
+        address = data.get('address')
+
+        if amount and transaction_note and address:
+            if amount <= 0:
+                raise serializers.ValidationError(
+                    'Amount must be greater than 0')
+        else:
+            raise serializers.ValidationError('All fields must be completed')
