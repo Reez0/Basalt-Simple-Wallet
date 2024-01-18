@@ -1,0 +1,62 @@
+version: "3.7"
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+      args:
+        DOMAIN: ${DOMAIN}
+        EMAIL: ${EMAIL}
+        DJANGO: api
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - ./basalt_simple_wallet:/basalt_simple_wallet/
+    networks:
+      - apinetwork
+  api:
+    build:
+      context: ./basalt_simple_wallet/
+      dockerfile: ./dockerfile
+    container_name: api
+    depends_on:
+      - db
+      - redis
+      - nginx
+    volumes:
+      - ./basalt_simple_wallet:/app/
+    expose:
+      - "8000"
+    env_file:
+      - ./.env
+    networks:
+      - apinetwork
+  db:
+    image: postgres:14-alpine
+    container_name: db
+    env_file:
+      - ./.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+      - local_postgres_data_backups:/backups
+    networks:
+      - apinetwork
+  redis:
+    image: redis:7-alpine
+    container_name: broker
+    ports:
+      - "6379:6379"
+    networks:
+      - apinetwork
+
+networks:
+  apinetwork:
+    driver: bridge
+
+volumes:
+  local_postgres_data: {}
+  local_postgres_data_backups: {}
