@@ -52,3 +52,5 @@ class MakePaymentSerializer(serializers.Serializer):
                     'Amount must be greater than 0')
         else:
             raise serializers.ValidationError('All fields must be completed')
+
+        return data

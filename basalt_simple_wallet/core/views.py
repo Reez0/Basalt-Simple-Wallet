@@ -17,6 +17,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 import json
+import os
 
 STELLAR_SERVER_URL = "https://horizon-testnet.stellar.org"
 
@@ -93,9 +94,6 @@ def login(request):
 @authentication_classes([TokenAuthentication])
 def make_payment(request):
     try:
-        recipient_public_key = request.POST['address']
-        payment_amount = request.POST['amount']
-        memo = request.POST['transaction_note']
         serializer = MakePaymentSerializer(data=request.data)
         if not serializer.is_valid():
             return Response({"message": serializer.errors})
@@ -112,8 +110,8 @@ def make_payment(request):
                 network_passphrase=Network.TESTNET_NETWORK_PASSPHRASE,
                 base_fee=base_fee,
             )
-            .append_payment_op(destination=recipient_public_key, asset=Asset.native(), amount=payment_amount)
-            .add_text_memo(memo)
+            .append_payment_op(destination=serializer.validated_data['address'], asset=Asset.native(), amount=serializer.validated_data['amount'])
+            .add_text_memo(serializer.validated_data['transaction_note'])
             .set_timeout(10)
             .build()
         )
@@ -133,7 +131,32 @@ def make_payment(request):
 @authentication_classes([TokenAuthentication])
 def add_credit(request):
     try:
-        pass
+        server = Server(STELLAR_SERVER_URL)
+        user = get_user_from_token(request)
+        account = Account.objects.get(user=user)
+        sender_secret_key = os.getenv("ADMIN_PRIVATE_KEY")
+        sender_keypair = Keypair.from_secret(sender_secret_key)
+        sender_account = server.load_account(sender_keypair.public_key)
+        print(sender_account)
+        base_fee = server.fetch_base_fee()
+        transaction = (
+            TransactionBuilder(
+                source_account=sender_account,
+                network_passphrase=Network.TESTNET_NETWORK_PASSPHRASE,
+                base_fee=base_fee,
+            )
+            .append_payment_op(destination=account.public, asset=Asset.native(), amount="100")
+            .add_text_memo(f"ACCOUNT CREDIT")
+            .set_timeout(10)
+            .build()
+        )
+        transaction.sign(sender_keypair)
+        try:
+            response = server.submit_transaction(transaction)
+            return Response({"success": response['successful'], "message": f"Account credited successfully!"})
+        except (BadRequestError, BadResponseError) as err:
+            print(str(e))
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        print(e)
+        print(str(e))
         return Response({"message": "Something went wrong, please try again later"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
