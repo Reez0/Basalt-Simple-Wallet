@@ -1,4 +1,4 @@
-# Basalt Simple Wallet 🌐
+# Basalt Simple Wallet 💰
 
 A simple wallet created using the Stellar XLM Python SDK. This project utilizes Django Rest Framework to create API endpoints and features a dockerized Postgres Database. Authentication is implemented using statically generated tokens, all encapsulated within an Angular frontend. Message queuing functionality is available via Redis and Celery.
 
