@@ -18,6 +18,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 import json
 import os
+from .tasks import do_something
 
 STELLAR_SERVER_URL = "https://horizon-testnet.stellar.org"
 
@@ -32,6 +33,8 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 @authentication_classes([TokenAuthentication])
 def dashboard(request):
     try:
+        result = do_something.delay(4,4)
+        print(result.get())
         user = get_user_from_token(request)
         user_account = Account.objects.get(user=user)
         account_public_key = user_account.public
