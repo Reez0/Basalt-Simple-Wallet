@@ -1,0 +1,207 @@
+
+<main class="main">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <div class="content">
+          <h1>Basalt Simple Wallet</h1>
+
+          <div class="card-actions" *ngIf="isLoggedIn">
+            <button class="btn btn-primary btn-sm m-2" (click)="creditAccount()">Add credit</button>
+            <button class="btn btn-primary btn-sm m-2" (click)="openDebitAccount(debitAccount)">Make a payment</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div *ngIf="isLoggedIn;else notLoggedIn">
+
+    
+    <div class="row">
+      <div class="col">
+        <div class="card m-5">
+            <h4 class="text-center">Your Account</h4>
+            <div class="detail">
+              <h5>Balance</h5>
+            <p>{{accountData!.data.account_data.balances[0].balance}} Stellar XLM</p>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="card m-5">
+        <h4 class="text-center">Transaction history</h4>
+        <table class="table-responsive">
+          <thead>
+            <tr>
+              <th>Successful</th>
+              <th>Created At</th>
+              <th>Source Account</th>
+              <th>Fee Charged</th>
+              <th>Memo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let transaction of accountData!.data!.transaction_history">
+              <td>{{ transaction.successful }}</td>
+              <td>{{ transaction.created_at }}</td>
+              <td>{{ transaction.source_account }}</td>
+              <td>{{ transaction.fee_charged }}</td>
+              <td>{{ transaction.memo || 'N/A' }}</td>
+              
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+    <ng-template #notLoggedIn>
+      <div class="row">
+        <div class="col">
+          <div class="login-content">
+            <p class="text-center">You are not logged in. Please login or create an account to continue</p>
+            <div class="content-action">
+              <button class="btn btn-primary btn-sm m-2" (click)="openLogin(login)">Login</button>
+              <button class="btn btn-primary btn-sm m-2" (click)="openCreateAccount(createAccount)">Create an account</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template #login let-modal>
+      <div class="modal-header">
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmitLogin()" class="card p-4">
+          <h2 class="text-center mb-4">Login</h2>
+  
+          <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="email" formControlName="email" placeholder="Enter email" />
+            <div *ngIf="loginForm.get('email')?.hasError('email') && loginForm.get('email')?.touched">
+              <small class="text-danger">Invalid email address</small>
+            </div>
+          </div>
+  
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" formControlName="password" placeholder="Password" />
+            <div *ngIf="loginForm.get('password')?.hasError('minlength') && loginForm.get('password')?.touched">
+              <small class="text-danger">Please provide a password</small>
+            </div>
+          </div>
+  
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-outline-dark">Login</button>
+          </div>
+        </form>
+      </div>
+
+    </ng-template>
+
+    <ng-template #createAccount let-modal>
+      <div class="modal-header">
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="accountForm" (ngSubmit)="onSubmitCreateAccount()" class="card p-4">
+          <h2 class="text-center mb-4">Create Account</h2>
+  
+          <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="email" formControlName="email" placeholder="Enter email" />
+            <div *ngIf="accountForm.get('email')?.hasError('required') && accountForm.get('email')?.touched">
+              <small class="text-danger">Email is required</small>
+            </div>
+            <div *ngIf="accountForm.get('email')?.hasError('email') && accountForm.get('email')?.touched">
+              <small class="text-danger">Invalid email address</small>
+            </div>
+          </div>
+  
+          <div class="mb-3">
+            <label for="firstName" class="form-label">First Name</label>
+            <input type="text" class="form-control" id="firstName" formControlName="firstName" placeholder="Enter first name" />
+            <div *ngIf="accountForm.get('firstName')?.hasError('required') && accountForm.get('firstName')?.touched">
+              <small class="text-danger">First name is required</small>
+            </div>
+          </div>
+  
+          <div class="mb-3">
+            <label for="lastName" class="form-label">Last Name</label>
+            <input type="text" class="form-control" id="lastName" formControlName="lastName" placeholder="Enter last name" />
+            <div *ngIf="accountForm.get('lastName')?.hasError('required') && accountForm.get('lastName')?.touched">
+              <small class="text-danger">Last name is required</small>
+            </div>
+          </div>
+  
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" formControlName="password" placeholder="Enter password" />
+            <div *ngIf="accountForm.get('password')?.hasError('required') && accountForm.get('password')?.touched">
+              <small class="text-danger">Password is required</small>
+            </div>
+            <div *ngIf="accountForm.get('password')?.hasError('minlength') && accountForm.get('password')?.touched">
+              <small class="text-danger">Password must be at least 6 characters</small>
+            </div>
+          </div>
+          <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Create Account</button>
+        </div>
+        </form>
+      </div>
+    </ng-template>
+
+    <ng-template #debitAccount let-modal>
+      <div class="modal-header">
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="debitAccountForm" (ngSubmit)="onDebitAccount()" class="card p-4">
+          <h2 class="text-center mb-4">Debit Account</h2>
+  
+          <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <input type="text" class="form-control" id="address" formControlName="address" placeholder="Enter address"/>
+            <div *ngIf="debitAccountForm.get('address')?.hasError('required') && debitAccountForm.get('address')?.touched">
+              <small class="text-danger">Address is required</small>
+            </div>
+          </div>
+  
+          <div class="mb-3">
+            <label for="transactionNote" class="form-label">Transaction Note</label>
+            <input type="text" class="form-control" id="transactionNote" formControlName="transactionNote" placeholder="Enter transaction note" />
+            <div *ngIf="debitAccountForm.get('transactionNote')?.hasError('required') && debitAccountForm.get('transactionNote')?.touched">
+              <small class="text-danger">Transaction note is required</small>
+            </div>
+          </div>
+  
+          <div class="mb-3">
+            <label for="amount" class="form-label">Amount</label>
+            <input type="text" class="form-control" id="amount" formControlName="amount" placeholder="Enter amount" />
+            <div *ngIf="debitAccountForm.get('amount')?.hasError('required') && debitAccountForm.get('amount')?.touched">
+              <small class="text-danger">Amount is required</small>
+            </div>
+            <div *ngIf="debitAccountForm.get('amount')?.hasError('pattern') && debitAccountForm.get('amount')?.touched">
+              <small class="text-danger">Invalid amount format</small>
+            </div>
+          </div>
+  
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-outline-dark">Debit</button>
+          </div>
+        </form>
+      </div>
+
+    </ng-template>
+
+    
+
+  </div>
+</main>
+
+
+
+<router-outlet />

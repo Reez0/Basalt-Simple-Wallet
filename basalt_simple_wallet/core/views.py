@@ -40,8 +40,9 @@ def dashboard(request):
             account_id=account_public_key).call()
         account = server.accounts().account_id(account_public_key).call()
         return Response(data={"success": True,
-                              "data": {"transaction_history": transactions,
-                                       "account": account}}, status=status.HTTP_200_OK)
+                              "data": {"account_data": account,
+                                       "transaction_history": transactions['_embedded']['records']}},
+                        status=status.HTTP_200_OK)
     except PermissionDenied as e:
         return Response({"message": str(e)}, status=status.HTTP_403_FORBIDDEN)
     except Exception as e:
@@ -64,7 +65,7 @@ def create_account(request):
                                   public=keypair.public_key)
                 account.save_private_key(keypair.secret)
                 account.save()
-                return Response(data={"success": True, "message": f"Welcome, {serializer.data['first_name']}"}, status=status.HTTP_200_OK)
+                return Response(data={"success": True, "message": f"Account created successfully. Please login to continue"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         print(e)
@@ -79,10 +80,17 @@ def login(request):
             user = serializer.validated_data['user']
             token, created = Token.objects.get_or_create(user=user)
             return Response({
+                "success": True,
                 "data": {
                     "token": token.key,
                     "email": user.email
                 }, "message": f"Logged in successfully. Welcome back, {user.first_name}!",
+
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "success": False,
+                "message": "Invalid email and password combination",
 
             }, status=status.HTTP_200_OK)
     except Exception as e:
@@ -119,7 +127,7 @@ def make_payment(request):
         try:
             response = server.submit_transaction(transaction)
             return Response({"success": response['successful'], "message": f"Payment successful! A fee of {response['fee_charged']} lumens was charged."})
-        except (BadRequestError, BadResponseError) as err:
+        except (BadRequestError, BadResponseError) as e:
             print(str(e))
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
@@ -137,7 +145,6 @@ def add_credit(request):
         sender_secret_key = os.getenv("ADMIN_PRIVATE_KEY")
         sender_keypair = Keypair.from_secret(sender_secret_key)
         sender_account = server.load_account(sender_keypair.public_key)
-        print(sender_account)
         base_fee = server.fetch_base_fee()
         transaction = (
             TransactionBuilder(
@@ -154,9 +161,9 @@ def add_credit(request):
         try:
             response = server.submit_transaction(transaction)
             return Response({"success": response['successful'], "message": f"Account credited successfully!"})
-        except (BadRequestError, BadResponseError) as err:
+        except (BadRequestError, BadResponseError) as e:
             print(str(e))
-            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": False, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         print(str(e))
         return Response({"message": "Something went wrong, please try again later"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

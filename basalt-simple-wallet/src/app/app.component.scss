@@ -1,0 +1,32 @@
+.content {
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: row;
+}
+
+.content-action {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.card-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.detail {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.login-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
