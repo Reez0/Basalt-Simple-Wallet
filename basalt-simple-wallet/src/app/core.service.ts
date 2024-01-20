@@ -37,7 +37,8 @@ export class CoreService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.httpClient.post<CreateAccountResponse>(url,{headers});
+    console.log(headers)
+    return this.httpClient.post<CreateAccountResponse>(url,{},{headers});
   }
 
   onDebitAccount(address: string, transactionNote: string, amount: string ) {

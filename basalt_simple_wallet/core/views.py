@@ -47,7 +47,7 @@ def dashboard(request):
         return Response({"message": str(e)}, status=status.HTTP_403_FORBIDDEN)
     except Exception as e:
         print(e)
-        return Response({"message": "Something went wrong, please try again later"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"success": False, "message": "Something went wrong, please try again later"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])
@@ -69,7 +69,7 @@ def create_account(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         print(e)
-        return Response({"message": "Something went wrong, please try again later"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"success": False, "message": "Something went wrong, please try again later"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])
@@ -95,7 +95,7 @@ def login(request):
             }, status=status.HTTP_200_OK)
     except Exception as e:
         print(e)
-        return Response({"message": "Something went wrong, please try again later"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"success": False, "message": "Something went wrong, please try again later"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])
@@ -104,7 +104,8 @@ def make_payment(request):
     try:
         serializer = MakePaymentSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response({"message": serializer.errors})
+            return Response({"message": serializer.errors, "success": False})
+        print(serializer.validated_data)
         server = Server(STELLAR_SERVER_URL)
         user = get_user_from_token(request)
         account = Account.objects.get(user=user)
@@ -118,27 +119,31 @@ def make_payment(request):
                 network_passphrase=Network.TESTNET_NETWORK_PASSPHRASE,
                 base_fee=base_fee,
             )
-            .append_payment_op(destination=serializer.validated_data['address'], asset=Asset.native(), amount=serializer.validated_data['amount'])
+            .append_payment_op(destination=serializer.validated_data['address'], asset=Asset.native(), amount=str(serializer.validated_data['amount']))
             .add_text_memo(serializer.validated_data['transaction_note'])
-            .set_timeout(10)
+            .set_timeout(40)
             .build()
         )
         transaction.sign(sender_keypair)
         try:
             response = server.submit_transaction(transaction)
+            print(response)
             return Response({"success": response['successful'], "message": f"Payment successful! A fee of {response['fee_charged']} lumens was charged."})
         except (BadRequestError, BadResponseError) as e:
             print(str(e))
-            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": False, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except TimeoutError as e:
+            return Response({"success": False, "message": "Transaction timed out. Please try again."}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         print(str(e))
-        return Response({"message": "Something went wrong, please try again later"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"success": False, "message": "Something went wrong, please try again later"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 def add_credit(request):
     try:
+        print(request)
         server = Server(STELLAR_SERVER_URL)
         user = get_user_from_token(request)
         account = Account.objects.get(user=user)
@@ -146,6 +151,7 @@ def add_credit(request):
         sender_keypair = Keypair.from_secret(sender_secret_key)
         sender_account = server.load_account(sender_keypair.public_key)
         base_fee = server.fetch_base_fee()
+        print(base_fee)
         transaction = (
             TransactionBuilder(
                 source_account=sender_account,
@@ -154,16 +160,17 @@ def add_credit(request):
             )
             .append_payment_op(destination=account.public, asset=Asset.native(), amount="100")
             .add_text_memo(f"ACCOUNT CREDIT")
-            .set_timeout(10)
+            .set_timeout(30)
             .build()
         )
         transaction.sign(sender_keypair)
         try:
             response = server.submit_transaction(transaction)
+            print(response)
             return Response({"success": response['successful'], "message": f"Account credited successfully!"})
         except (BadRequestError, BadResponseError) as e:
-            print(str(e))
+            print(e)
             return Response({"success": False, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        print(str(e))
-        return Response({"message": "Something went wrong, please try again later"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        print(e)
+        return Response({"success": False, "message": "Something went wrong, please try again later"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

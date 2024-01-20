@@ -24,4 +24,5 @@ def get_user_from_token(request):
     except User.DoesNotExist:
         raise PermissionDenied("User not found for the given token")
     except Exception as e:
+        print(e)
         raise PermissionDenied("Something went wrong")

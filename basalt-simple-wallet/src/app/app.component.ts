@@ -107,6 +107,7 @@ export class AppComponent implements OnInit {
         console.log(result)
         if (result.success) {
           alert(result.message)
+          this.ngOnInit();
         } else {
           alert(result.message)
         }
