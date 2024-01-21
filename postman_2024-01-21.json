@@ -1,0 +1,246 @@
+{
+  "info": {
+    "_postman_id": "5d5bd639-096e-4e0d-8916-4fcd8bba7336",
+    "name": "Basalt Simple Wallet",
+    "description": "API requests for Basalt Simple Wallet",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Credit",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "User-Agent",
+            "value": "insomnia/8.5.1"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": {
+          "raw": "localhost/api/pay/credit/",
+          "protocol": "localhost",
+          "host": [
+            "api",
+            "pay",
+            "credit"
+          ],
+          "path": []
+        },
+        "description": "",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "04fb3fec37ba362f4fa009d586088dd675c57564",
+              "type": "string"
+            },
+            {
+              "key": "prefix",
+              "value": "Bearer",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Debit",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data"
+          },
+          {
+            "key": "User-Agent",
+            "value": "insomnia/8.5.1"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "address",
+              "value": "GCLC3KNRNMQB3DGRSTBYUG6QRLZNEO4QTILVDPHIR3BWYBUHBA5UBFPV"
+            },
+            {
+              "key": "transaction_note",
+              "value": "Test123"
+            },
+            {
+              "key": "amount",
+              "value": "1"
+            }
+          ]
+        },
+        "url": {
+          "raw": "localhost/api/pay/debit/",
+          "protocol": "localhost",
+          "host": [
+            "api",
+            "pay",
+            "debit"
+          ],
+          "path": []
+        },
+        "description": "",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "04fb3fec37ba362f4fa009d586088dd675c57564",
+              "type": "string"
+            },
+            {
+              "key": "prefix",
+              "value": "Bearer",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Dashboard",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "User-Agent",
+            "value": "insomnia/8.5.1"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": {
+          "raw": "localhost/api/dashboard",
+          "protocol": "localhost",
+          "host": [
+            "api",
+            "dashboard"
+          ],
+          "path": []
+        },
+        "description": "",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "04fb3fec37ba362f4fa009d586088dd675c57564",
+              "type": "string"
+            },
+            {
+              "key": "prefix",
+              "value": "Bearer",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data"
+          },
+          {
+            "key": "User-Agent",
+            "value": "insomnia/8.5.1"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "email",
+              "value": "riyaazfakier2@gmail.com"
+            },
+            {
+              "key": "password",
+              "value": "riyaaz01a"
+            }
+          ]
+        },
+        "url": {
+          "raw": "localhost/api/login/",
+          "protocol": "localhost",
+          "host": [
+            "api",
+            "login"
+          ],
+          "path": []
+        },
+        "description": "",
+        "auth": {}
+      },
+      "response": []
+    },
+    {
+      "name": "Create an account",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data"
+          },
+          {
+            "key": "User-Agent",
+            "value": "insomnia/8.5.1"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "email",
+              "value": "riyaazfakier2@gmail.com"
+            },
+            {
+              "key": "first_name",
+              "value": "Riyaaz"
+            },
+            {
+              "key": "last_name",
+              "value": "Fakier"
+            },
+            {
+              "key": "password",
+              "value": "riyaaz01"
+            }
+          ]
+        },
+        "url": {
+          "raw": "localhost/api/create-account/",
+          "protocol": "localhost",
+          "host": [
+            "api",
+            "create-account"
+          ],
+          "path": []
+        },
+        "description": "",
+        "auth": {}
+      },
+      "response": []
+    }
+  ]
+}
+
