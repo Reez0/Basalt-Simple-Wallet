@@ -1,5 +1,12 @@
+<div *ngIf="loading; else main" class="d-flex align-items-center justify-content-center vh-100 flex-column">
+  <div class="spinner-border" role="status">
+  </div>
+  <p class="ml-2">Loading...</p>
+</div>
 
-<main class="main">
+
+
+<ng-template #main class="main">
   <div class="container">
     <div class="row">
       <div class="col">
@@ -200,7 +207,7 @@
     
 
   </div>
-</main>
+</ng-template>
 
 
 

@@ -23,6 +23,7 @@ export class AppComponent implements OnInit {
   loginForm: FormGroup;
   accountForm: FormGroup;
   debitAccountForm: FormGroup;
+  loading: boolean = false;
 
   constructor(private coreService: CoreService, private formBuilder: FormBuilder) {
     this.loginForm = this.formBuilder.group({
@@ -56,30 +57,37 @@ export class AppComponent implements OnInit {
 
 
   ngOnInit() {
+    this.loading = true;
     if (localStorage.getItem('token')) {
       this.isLoggedIn = true;
       this.coreService.getAccountData().subscribe(result => {
         if (result.success) {
           this.accountData = result;
           console.log(this.accountData)
+          this.loading = false
         } else {
+          this.loading = false
           alert(result.message);
         }
 
       })
     }
+    this.loading=false;
   }
 
   onSubmitLogin() {
+    this.loading = true;
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
       this.coreService.onLogin(email, password).subscribe((result => {
         if (result.success) {
+          this.loading = false
           alert(result.message)
           localStorage.setItem('token', result.data.token);
           this.modalService.dismissAll();
           this.ngOnInit();
         } else {
+          this.loading = false
           alert(result.message)
         }
       }))
@@ -87,13 +95,16 @@ export class AppComponent implements OnInit {
   }
 
   onSubmitCreateAccount() {
+    this.loading = true;
     if (this.accountForm.valid) {
       const { email, password, firstName, lastName } = this.accountForm.value;
       this.coreService.onCreateAccount(email, password, firstName, lastName).subscribe((result => {
         if (result.success) {
+          this.loading = false
           this.modalService.dismissAll();
           alert(result.message);
         } else {
+          this.loading = false
           alert(result.message)
         }
       }))
@@ -101,14 +112,17 @@ export class AppComponent implements OnInit {
   }
 
   creditAccount() {
+    this.loading = true;
     let creditAccountPrompt = confirm('Your account will be credited with 100 XLM').valueOf()
     if (creditAccountPrompt) {
       this.coreService.onCreditAccount().subscribe(result => {
         console.log(result)
         if (result.success) {
+          this.loading = false
           alert(result.message)
           this.ngOnInit();
         } else {
+          this.loading = false
           alert(result.message)
         }
       })
@@ -116,14 +130,17 @@ export class AppComponent implements OnInit {
   }
 
   onDebitAccount() {
+    this.loading = true;
     if (this.debitAccountForm.valid) {
       const { amount, transactionNote, address } = this.debitAccountForm.value;
       this.coreService.onDebitAccount(address, transactionNote, amount).subscribe((result => {
         if (result.success) {
           this.modalService.dismissAll();
+          this.loading = false
           alert(result.message);
           this.ngOnInit()
         } else {
+          this.loading = false
           alert(String(result.message))
         }
       }))
